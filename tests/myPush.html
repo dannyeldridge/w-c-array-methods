@@ -1,0 +1,75 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+    push() adds zero or more elements to the end of an array and returns the new length of the array.
+
+    Function signature:
+    push(array, [element1[, ...[, elementN]]])
+
+  */
+
+  Array.prototype.myPush = function () {
+    'use strict';
+    // If dealing with an object
+    if (Object.prototype.toString.call(this) === '[object Object]') {
+      // If object does not have a length property, add one.
+      if (!this.length) {
+        this.length = 0;
+      }
+
+      for (var i = 0; i < arguments.length; i++) {
+        // index the element
+        this[this.length] = arguments[i];
+        // increase the length by 1
+        this.length++;
+      }
+    } else {
+      // if dealing with an array
+      for (var i = 0; i < arguments.length; i++) {
+        this[this.length] = arguments[i];
+      }
+    }
+    return this.length;
+  };
+
+  tests({
+    'It should return the new length property of the object upon which the method was called.': function () {
+      var array = [];
+      var pushResult = array.myPush();
+      eq(pushResult, 0);
+    },
+    'It should append N values to the end of the passed-in array.': function () {
+      var array = [];
+      var pushResult = array.push(1, 2);
+      eq(array.length, 2);
+      eq(array[0], 1);
+      eq(array[1], 2);
+    },
+    'It should be able to merge two arrays passed-in as arguments using apply.': function () {
+      var array1 = [1, 2];
+      var array2 = [3, 4];
+      Array.prototype.myPush.apply(array1, array2);
+      eq(array1.length, 4);
+    },
+    'It should be able to work on array-like objects.': function () {
+      let obj = {
+        length: 0,
+
+        addElem: function addElem(elem) {
+          [].myPush.call(this, elem);
+        },
+      };
+
+      obj.addElem({});
+      obj.addElem({});
+      eq(obj.length, 2);
+    },
+    'If the length property cannot be converted into a number, the index used to append values is 0.': function () {
+      var testObj = {};
+      Array.prototype.myPush.call(testObj, 'test');
+      eq(testObj.length, 1);
+    },
+  });
+</script>

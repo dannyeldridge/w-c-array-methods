@@ -1,0 +1,210 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+  
+   The mySplice() method changes the contents of an array by removing or
+   replacing existing elements and/or adding new elements in place.
+
+   Function signature:
+   array.mySplice(start[, deleteCount[, item1[, item2[, ...]]]])
+
+   */
+
+  Array.prototype.mySplice = function (start, deleteCount, ...rest) {
+    var array = this;
+    var length = array.length;
+    var arrayToReturn = [];
+    var startIndex = 0;
+    var elementsToInsert = [];
+
+    if (arguments.length > 2) {
+      elementsToInsert = [...rest];
+    }
+
+    if (typeof start == 'undefined') {
+      return [];
+    }
+
+    if (start) {
+      startIndex = start;
+    }
+
+    if (start < 0) {
+      startIndex = length + start;
+    }
+
+    if (start + length < 0) {
+      startIndex = 0;
+    }
+
+    if (start > length) {
+      for (var i = 0; i < elementsToInsert.length; i++) {
+        array.push(elementsToInsert[i]);
+      }
+      return [];
+    }
+
+    // if start && deleteCount
+
+    if (deleteCount) {
+      // if delete count is negative
+      if (deleteCount < 0) {
+        // establish previous length variable
+        var prevLength = length;
+        // extend array length to new length
+        length = length + elementsToInsert.length;
+        // move elements to the right to make space
+        for (var i = 0; i < prevLength - startIndex; i++) {
+          array[length - 1 - i] = array[prevLength - 1 - i];
+        }
+        // insert the elements from the elements to insert
+        for (var i = 0; i < elementsToInsert.length; i++) {
+          array[startIndex + i] = elementsToInsert[0 + i];
+        }
+        // return empty array
+        return [];
+      }
+
+      // If deleteCount is positive,
+      // push elements to delete into arrayToReturn
+      for (var i = startIndex; i < deleteCount; i++) {
+        arrayToReturn.push(array[i]);
+      }
+
+      // If number of elementsToInsert == deleteCount.
+      if (elementsToInsert.length == deleteCount) {
+        // simply replace the two 'deleted indexes' with elementsToInsert
+        for (var i = 0; i < elementsToInsert.length; i++) {
+          array[start + i] = elementsToInsert[i];
+        }
+        return arrayToReturn;
+      }
+
+      // If number of elementsToInsert > deleteCount
+      else if (elementsToInsert.length > deleteCount) {
+        // establish previous length variable
+        var prevLength = length;
+        // extend array length to new length
+        length = length + (elementsToInsert.length - deleteCount);
+        // move elements to the right to make space
+        for (var i = 0; i < prevLength - (startIndex + deleteCount); i++) {
+          array[length - 1 - i] = array[prevLength - 1 - i];
+        }
+        // insert the elements from the elementsToInsert
+        for (var i = 0; i < elementsToInsert.length; i++) {
+          array[startIndex + i] = elementsToInsert[0 + i];
+        }
+        // return the arrayToReturn
+        return arrayToReturn;
+      }
+
+      // If number of elements to insert == 0,
+      // shift all elements down.
+      else {
+        var count = length - deleteCount;
+        for (var i = 0; i < count; i++) {
+          array[i] = array[i + deleteCount];
+        }
+        // change the length of the array to remove last elements
+        length = length - deleteCount;
+        // return the arrayToReturn
+        return arrayToReturn;
+      }
+      // if no deleteCount
+    } else {
+      for (var i = startIndex; i < length; i++) {
+        arrayToReturn.push(array[i]);
+      }
+      // trim the original array.
+      length = length - (length - startIndex);
+
+      return arrayToReturn;
+    }
+  };
+
+  tests({
+    'It should return an array. ': function () {
+      var array = [];
+      var mySpliceResult = array.mySplice();
+      eq(Array.isArray(mySpliceResult), true);
+    },
+    'It should not return the original array.': function () {
+      var array = [];
+      var mySpliceResult = array.mySplice();
+      eq(mySpliceResult != array, true);
+    },
+    'If no start value is provided, it should return an empty array and no elements are deleted.': function () {
+      var array = [0, 1];
+      var mySpliceResult = array.mySplice();
+      eq(mySpliceResult.length, 0);
+      eq(array.length, 2);
+    },
+    'If start is provided, and no delete count, it should splice and return elements from `start` to the end of the array.': function () {
+      var array = [0, 1, 2, 3, 4, 5];
+      var mySpliceResult = array.mySplice(2);
+
+      var resultArray = [0, 1];
+      var expectedReturnedArray = [2, 3, 4, 5];
+
+      resultArray.forEach((e, i) => eq(e, array[i]));
+      expectedReturnedArray.forEach((e, i) => eq(e, mySpliceResult[i]));
+    },
+    'If start is greater than the length of the array, it should add additional passed-in elements to the end.': function () {
+      var array = [1, 2, 3];
+      array.mySplice(10, 0, 4, 5);
+      var resultArray = [1, 2, 3, 4, 5];
+      resultArray.forEach((e, i) => eq(e, array[i]));
+    },
+    'If start is negative, it should begin that many elements from the end of the array.': function () {
+      var array = [1, 2, 3, 4, 5];
+      var start = -2;
+      array.mySplice(start);
+      var resultArray = [1, 2, 3];
+      resultArray.forEach((e, i) => eq(e, array[i]));
+    },
+    'If start + array.length is less than 0, it will begin from index 0.': function () {
+      var array = [1, 2, 3, 4, 5];
+      var start = -7;
+
+      var mySpliceResult = array.mySplice(start);
+
+      var resultArray = [];
+      resultArray.forEach((e, i) => eq(e, array[i]));
+
+      var expectedReturnedArray = [1, 2, 3, 4, 5];
+      expectedReturnedArray.forEach((e, i) => eq(e, mySpliceResult[i]));
+    },
+    'If deleteCount, it should remove that number of elements starting from `start`.': function () {
+      var array = [1, 2, 3, 4, 5];
+      var start = 0;
+      var deleteCount = 2;
+
+      var mySpliceResult = array.mySplice(start, deleteCount);
+
+      resultArray = [3, 4, 5];
+      resultArray.forEach((num, i) => eq(num, array[i]));
+
+      var expectedReturnedArray = [1, 2];
+      expectedReturnedArray.forEach((e, i) => eq(e, mySpliceResult[i]));
+    },
+    'It should add any additional arguments passed in beginning at `start`.': function () {
+      var array = [0, 1, 2, 3, 4];
+      array.mySplice(2, 2, 5, 6);
+      var expectedArrayAfterSplice = [0, 1, 5, 6, 4];
+      expectedArrayAfterSplice.forEach((num, i) => eq(num, array[i]));
+    },
+    'If more elements are passed in than are deleted, the length should be extended. ': function () {
+      var array = [0, 1, 2, 3, 4];
+      array.mySplice(2, 2, 5, 6, 7, 8);
+      var expectedArrayAfterSplice = [0, 1, 5, 6, 7, 8, 4];
+      expectedArrayAfterSplice.forEach((num, i) => eq(num, array[i]));
+    },
+    'If deleteCount is 0 or negative, it should not remove any elements.});': function () {
+      var array = [0, 1, 2];
+      array.mySplice(1, -1, 3, 4);
+      var expectedArrayAfterSplice = [0, 3, 4, 1, 2];
+      expectedArrayAfterSplice.forEach((num, i) => eq(num, array[i]));
+    },
+  });
+</script>

@@ -1,0 +1,46 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+  
+  The myReverse() method reverses an array in place. The first array element becomes the last, 
+  and the last array element becomes the first.
+  
+  Function signature:
+  array.myReverse()
+
+  */
+
+  Array.prototype.myReverse = function () {
+    var timesToRun = Math.floor(this.length / 2) + 1;
+    for (var i = 0; i < timesToRun; i++) {
+      var a = this[i];
+      var b = this[this.length - 1 - i];
+      this[i] = b;
+      this[this.length - 1 - i] = a;
+    }
+    return this;
+  };
+
+  tests({
+    'It should return a reference to the array.': function () {
+      var array = [];
+      var myReverseResult = array.myReverse();
+      eq(myReverseResult, array);
+    },
+    'It should reverse in place, not using any extra memory.': function () {
+      var array = [1, 2, 3];
+      array.myReverse();
+      eq(array[0], 3);
+      eq(array[1], 2);
+      eq(array[2], 1);
+    },
+    'It should be able to be called on array-like objects.': function () {
+      var obj = { length: 3, 0: 1, 1: 2, 2: 3 };
+      Array.prototype.myReverse.call(obj);
+      eq(obj[0], 3);
+      eq(obj[1], 2);
+      eq(obj[2], 1);
+    },
+  });
+</script>

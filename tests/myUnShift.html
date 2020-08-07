@@ -1,0 +1,50 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  The myUnshift() method adds one or more elements to the beginning of an array and returns the new length of the array.
+    
+  Function signature:
+  arr.myUnShift(element1[, ...[, elementN]])
+
+  */
+
+  Array.prototype.myUnShift = function () {
+    for (var i = this.length - 1; i >= 0; i--) {
+      this[i + arguments.length] = this[i];
+    }
+
+    for (var i = arguments.length - 1; i >= 0; i--) {
+      this[i] = arguments[i];
+    }
+
+    return this.length;
+  };
+
+  tests({
+    'It should N or more elements to the beginning of the array.': function () {
+      var array = [2];
+      array.myUnShift(1);
+      eq(array.length, 2);
+      eq(array[0], 1);
+    },
+    'It should return the new length property of the object upon which the method was called..': function () {
+      var array = [2, 3];
+      var myUnShiftResult = array.myUnShift(1);
+      eq(myUnShiftResult, 3);
+    },
+    'It should insert the values in chunk if passed in as one argument': function () {
+      var array = [4, 5, 6];
+      array.myUnShift(1, 2, 3);
+      eq(array.length, 6);
+      eq(array[0], 1);
+    },
+    'It should be able to work on array-like objects.': function () {
+      var obj = { length: 2, 0: 'zero', 1: 'one' };
+      Array.prototype.myUnShift.call(obj, 'new');
+      eq(obj.length, 2);
+      eq(obj[0], 'new');
+    },
+  });
+</script>

@@ -1,0 +1,111 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+  
+  concat() is used to merge two or more arrays. This function does not change the existing arrays, but instead returns a new array.
+
+  Function signature:
+  concat(old_arry, [value1[, value2[, ...[, valueN]]]])
+
+  */
+
+  function concat(array, ...additionalArgumentsToConcat) {
+    if (!Array.isArray(array)) {
+      throw new TypeError('First argument must be an array.');
+    }
+
+    if (arguments.length == 1) {
+      var newArray = array;
+      return newArray;
+    }
+
+    if (arguments.length > 1) {
+      newArray = [...array];
+
+      // create a new array where each element is an additional argument
+      var argumentsToConcat = [...additionalArgumentsToConcat];
+
+      // for each argument in the array of additional arguments
+      for (var argument of argumentsToConcat) {
+        // if the argument is an array
+        if (Array.isArray(argument)) {
+          // for each element in the array
+          for (var element of argument) {
+            // push element to newArray
+            newArray.push(element);
+          }
+          // otherwise
+        } else {
+          // push element into new Array
+          newArray.push(argument);
+        }
+      }
+    }
+    return newArray;
+  }
+
+  tests({
+    'It should accept an array as the first argument.': function () {
+      var isTypeError = false;
+      try {
+        concat([1]);
+      } catch (error) {
+        isTypeError = error instanceof TypeError;
+      }
+      eq(isTypeError, false);
+
+      var isTypeError2 = false;
+      try {
+        concat(1);
+      } catch (error) {
+        isTypeError = error instanceof TypeError;
+      }
+      eq(isTypeError, true);
+    },
+    'It should return a shallow copy of the first array if no additional values are passed in.': function () {
+      var array = [1];
+      var concatResult = concat(array);
+      eq(concatResult == array, true);
+    },
+    'It should return a new array when supplied two or more arrays.': function () {
+      var array = [1, 2, 3];
+      var arrayToConcat = ['a', 'b', 'c'];
+      var concatResult = concat(array, arrayToConcat);
+      eq(Array.isArray(concatResult), true);
+      eq(concatResult != array, true);
+      eq(concatResult != arrayToConcat, true);
+    },
+    'It should accept N arrays as additional arguments': function () {
+      var array = [1, 2];
+      var arrayToConcat1 = [3, 4];
+      var arrayToConcat2 = [5, 6];
+      var concatResult = concat(array, arrayToConcat1, arrayToConcat2);
+      eq(concatResult.length, 6);
+    },
+    'It should accept both arrays and non-arrays as additional arguments.': function () {
+      var array = [1, 2];
+      var arrayToConcat = [3, 4];
+      var elementToConcat = 5;
+      var concatResult = concat(array, arrayToConcat, elementToConcat);
+      eq(concatResult.length, 5);
+    },
+    'It should not recurse into nested arrays.': function () {
+      var array = [1, 2];
+      var arrayToConcat = [
+        [3, 4],
+        [5, 6],
+      ];
+      var concatResult = concat(array, arrayToConcat);
+      eq(concatResult.length, 4);
+    },
+    'It should copy object references into the new array.': function () {
+      var array = [1];
+      var obj = { name: 'test' };
+      var arrayToConcat = [obj];
+
+      var concatResult = concat(array, arrayToConcat);
+      eq(concatResult[1], obj);
+    },
+  });
+</script>

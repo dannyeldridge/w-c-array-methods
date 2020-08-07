@@ -1,0 +1,80 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+  
+  join() creates and returns a new string by concatenating all of the elements in an array (or an array-like object), separated by commas or a specified separator string. If the array has only one item, then that item will be returned without using the separator.
+  
+  Function signature:
+  join(array [, separator])  
+
+  */
+
+  function join(array, separator) {
+    var newArray = '';
+    separatorToUse = ',';
+
+    if (array.length == 0) {
+      return newArray;
+    }
+
+    if (separator) {
+      separatorToUse = separator;
+    }
+
+    for (var i = 0; i < array.length; i++) {
+      if (
+        array[i] == null ||
+        typeof array[i] == 'undefined' ||
+        (Array.isArray(array[i]) && array[i].length == 0)
+      ) {
+        newArray += separatorToUse;
+      } else {
+        newArray += array[i];
+        if (i != array.length - 1) {
+          newArray += separatorToUse;
+        }
+      }
+    }
+    return newArray;
+  }
+
+  tests({
+    'It should create and return a new string.': function () {
+      var joinResult = join([]);
+      eq(typeof joinResult == 'string', true);
+    },
+    'If arr.length is 0, it should return an empty string.': function () {
+      var array = [];
+      var joinResult = join(array);
+      eq(joinResult == '', true);
+    },
+    'It should return a string with all array elements separated by a comma.': function () {
+      var array = [1, 2];
+      var joinResult = join(array);
+      eq(joinResult, '1,2');
+    },
+    'It should separate values by the separator, if provided.': function () {
+      var array = [1, 2];
+      var separator = '-';
+      var joinResult = join(array, separator);
+      eq(joinResult, '1-2');
+    },
+    'If the array has only one item, then it should return that item without using the separator.': function () {
+      var array = [1];
+      var joinResult = join(array);
+      eq(joinResult, '1');
+    },
+    'If an element is undefined, null or an empty array [], it should convert to an empty string.': function () {
+      var array = [1, , null, [], 2];
+      var joinResult = join(array);
+      eq(joinResult, '1,,,,2');
+    },
+    'It should work on array-like objects.': function () {
+      function f(a, b, c) {
+        join.call(arguments);
+        eq(f(1, 'a', true), '1,a,true');
+      }
+    },
+  });
+</script>

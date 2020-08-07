@@ -1,0 +1,155 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  findIndex() returns the index of the first element in the array that satisfies the provided testing function. Otherwise, it returns -1, indicating that no element passed the test.
+
+  Function signature:
+  findIndex(array, callback( element[, index[, array]] )[, thisArg])
+  
+  */
+
+  function findIndex(array, callback, thisArg) {
+    var findIndexCallback = callback;
+    var length = array.length;
+
+    if (thisArg) {
+      findIndexCallback = callback.bind(thisArg);
+    }
+
+    for (var i = 0; i < length; i++) {
+      if (findIndexCallback(array[i], i, array)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  tests({
+    'It should execute the callback once for each element in the original array.': function () {
+      var array = [1, 2];
+      var numberOfTimesCallbackHasRun = 0;
+      var callback = function () {
+        numberOfTimesCallbackHasRun++;
+      };
+
+      findIndex(array, callback);
+
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should call the callback on every index in the array, not just those with assigned values.': function () {
+      var array = [, 1, ,];
+      var numberOfTimesCallbackHasRun = 0;
+      var callback = function () {
+        numberOfTimesCallbackHasRun++;
+      };
+
+      findIndex(array, callback);
+
+      eq(numberOfTimesCallbackHasRun, 3);
+    },
+    'It should pass in the ith element as the first argument to the callback.': function () {
+      var array = [1];
+      var callback = function (element) {
+        eq(element, 1);
+      };
+
+      findIndex(array, callback);
+    },
+    'It should have access to the index of the current element in the array being processed.': function () {
+      var array = [1];
+      var callback = function (element, index) {
+        eq(index, 0);
+      };
+
+      findIndex(array, callback);
+    },
+    'It should have access to the original array being processed.': function () {
+      var testArray = [1, 2];
+      var callback = function (element, index, array) {
+        eq(array[1], 2);
+      };
+
+      findIndex(testArray, callback);
+    },
+    'It should have access to an optional thisArg if one is provided.': function () {
+      var array = [1];
+      var testObj = { name: 'test' };
+      var callback = function (element, index, array) {
+        eq(this.name, 'test');
+      };
+      findIndex(array, callback, testObj);
+    },
+    'It should stop once a truthy value has been evaluated.': function () {
+      var array = [1, 2, 3, 4];
+      var numberOfTimesCallbackHasRun = 0;
+      var callback = function (element) {
+        numberOfTimesCallbackHasRun++;
+        return element > 1;
+      };
+      var findIndexResult = findIndex(array, callback);
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should return the index of the first element in the array that satisfies the provided testing function.': function () {
+      var array = ['a', 'b', 'c', 'd'];
+      var callback1 = function (element) {
+        return element == 'b';
+      };
+      var callback2 = function (element) {
+        return element == 'd';
+      };
+      var findIndexResult1 = findIndex(array, callback1);
+      var findIndexResult2 = findIndex(array, callback2);
+      eq(findIndexResult1, 1);
+      eq(findIndexResult2, 3);
+    },
+    'It should return -1 if no value matches.': function () {
+      var array = [1];
+      var callback = function (element) {
+        return element > 1;
+      };
+      var findIndexResult = findIndex(array, callback);
+      eq(findIndexResult, -1);
+    },
+    'It should not visit any newly created elements once the call to findIndex() has begun.': function () {
+      var array = [1, 2];
+      numberOfTimesCallbackHasRun = 0;
+      var callback = function (e) {
+        numberOfTimesCallbackHasRun++;
+        if (e == 2) {
+          array.push(3);
+        }
+        return e > 2;
+      };
+
+      var findIndexResult = findIndex(array, callback);
+      eq(array[2] == 3, true);
+      eq(findIndexResult, -1);
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should accept the curent value of a previously updated, yet unvisited element.': function () {
+      var array = ['a', 'b'];
+      var callback = function (e) {
+        array[1] = 'c';
+        return e == 'c';
+      };
+
+      var findIndexResult = findIndex(array, callback);
+      eq(array.length === 2, true);
+      eq(findIndexResult, 1);
+    },
+    'It should still visit deleted elements.': function () {
+      var numberOfTimesCallbackHasRun = 0;
+      var array = [1, 2, 3];
+      var callback = function (e) {
+        delete array[2];
+        numberOfTimesCallbackHasRun++;
+      };
+
+      findIndex(array, callback);
+
+      eq(numberOfTimesCallbackHasRun, 3);
+    },
+  });
+</script>

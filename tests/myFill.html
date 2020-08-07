@@ -1,0 +1,94 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+    The myFill() method changes all elements in an array to a static value, from a start index (default 0) to an end index (default array.length). It returns the modified array.
+
+    Function signature:
+    arr.myFill(value[, start[, end]])
+
+  */
+
+  Array.prototype.myFill = function (value, start, end) {
+    var startIndex = 0;
+    var endIndex = this.length;
+    if (start) {
+      if (start < 0) {
+        startIndex = this.length + start;
+      } else {
+        startIndex = start;
+      }
+    }
+    if (end) {
+      if (end < 0) {
+        endIndex = this.length + end;
+      } else {
+        endIndex = end;
+      }
+    }
+    for (var i = startIndex; i < endIndex; i++) {
+      this[i] = value;
+    }
+    return this;
+  };
+
+  tests({
+    'If no start and no end, it should fill every element in the array to the passed in value.': function () {
+      var array = [0, 0];
+      array.myFill(1);
+      eq(array[0], 1);
+      eq(array[1], 1);
+    },
+    'It should start filling values at the index of the passed in start value.': function () {
+      var array = [0, 0, 0];
+      array.myFill(1, 1);
+      eq(array[0], 0);
+      eq(array[1], 1);
+      eq(array[2], 1);
+    },
+    'It should fill values up to the index of the passed in end value (non inclusive).': function () {
+      var array = [0, 0, 0];
+      array.myFill(1, 0, 2);
+      eq(array[0], 1);
+      eq(array[1], 1);
+      eq(array[2], 0);
+    },
+    'It should return the modified array.': function () {
+      var array = [0];
+      var myFillResult = array.myFill(1);
+      eq(myFillResult, array);
+    },
+    'If start is negative, it is treated as array.length + start.': function () {
+      var array = [0, 0, 0];
+      array.myFill(1, -2);
+      eq(array[0], 0);
+      eq(array[1], 1);
+      eq(array[2], 1);
+    },
+    'If end is negative, it is treated as array.length + end.': function () {
+      var array = [0, 0, 0];
+      array.myFill(1, 0, -2);
+      eq(array[0], 1);
+      eq(array[1], 0);
+      eq(array[2], 0);
+    },
+    'It should change the array itself and return it, not a copy of it.': function () {
+      var array = [0, 0];
+      array.myFill(1);
+      eq(array != [1, 1], true);
+    },
+    'If the first parameter is an object, each slot in the array will reference that object.': function () {
+      var obj = { key: 'value' };
+      var array = [0, 0];
+      array.myFill(obj);
+      eq(array[0].key, 'value');
+      eq(array[1].key, 'value');
+    },
+    'It should work on array-like objects.': function () {
+      var obj = { length: 2, 0: 'before', 1: 'before' };
+      Array.prototype.myFill.call(obj, 'after');
+      eq(obj[0], 'after');
+      eq(obj[1], 'after');
+    },
+  });
+</script>

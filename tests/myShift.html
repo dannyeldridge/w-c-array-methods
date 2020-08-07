@@ -1,0 +1,52 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  The myShift() method removes the first element from an array and returns that removed element. This method changes the length of the array.
+    
+  Function signature:
+  arr.myShift()
+
+  */
+
+  Array.prototype.myShift = function () {
+    if (this.length == 0) {
+      return undefined;
+    }
+
+    var elementToReturn = this[0];
+
+    for (i = 0; i < this.length - 1; i++) {
+      this[i] = this[i + 1];
+    }
+
+    this.length = this.length - 1;
+
+    return elementToReturn;
+  };
+
+  tests({
+    'It should remove the 0th element from the array.': function () {
+      var array = [1, 2];
+      array.myShift();
+      eq(array.length, 1);
+      eq(array[0], 2);
+    },
+    'It should return the removed element.': function () {
+      var array = [1, 2];
+      var myShiftResult = array.myShift();
+      eq(myShiftResult, 1);
+    },
+    'It should return undefined if the array is empty.': function () {
+      var array = [];
+      eq(array.myShift(), undefined);
+    },
+    'It should be able to work on array-like objects.': function () {
+      var obj = { length: 2, 0: 'zero', 1: 'one' };
+      var myShiftResult = Array.prototype.myShift.call(obj);
+      eq(myShiftResult, 'zero');
+      eq(obj.length, 1);
+    },
+  });
+</script>

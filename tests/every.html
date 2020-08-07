@@ -1,0 +1,145 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  The funtion every() tests whether all elements in the array pass the test implemented by the provided function. It returns a Boolean value.
+
+
+  Function signature:
+  every(array, callback(element[, index[, array]])[, thisArg])
+
+  */
+
+  function every(array, callback, thisArg) {
+    var everyCallback = callback;
+    var length = array.length;
+
+    if (thisArg) {
+      everyCallback = callback.bind(thisArg);
+    }
+
+    for (var i = 0; i < length; i++) {
+      if (i in array) {
+        if (everyCallback(array[i], i, array) == false) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  tests({
+    'It should execute the callback once for each element in the original array.': function () {
+      var array = [1, 2];
+      var numberOfTimesCallbackHasRun = 0;
+      var callback = function () {
+        numberOfTimesCallbackHasRun++;
+      };
+
+      every(array, callback);
+
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should pass in the ith element as the first argument to the callback.': function () {
+      var array = [1];
+      var callback = function (element) {
+        eq(element, 1);
+      };
+      every(array, callback);
+    },
+    'It should have access to the index of the current element in the array being processed.': function () {
+      var array = [1];
+      var callback = function (element, index) {
+        eq(index, 0);
+      };
+      every(array, callback);
+    },
+    'It should have access to the original array being processed.': function () {
+      var testArray = [1, 2];
+      var callback = function (element, index, array) {
+        eq(array[1], 2);
+      };
+
+      every(testArray, callback);
+    },
+    'It should have access to an optional `this` argument if one is provided.': function () {
+      var array = [1];
+      var testObj = { name: 'test' };
+      var callback = function (element, index, array) {
+        eq(this.name, 'test');
+      };
+      every(array, callback, testObj);
+    },
+    'It should call the callback only on indexes with an assigned value.': function () {
+      var array = [, , , , 1, 2, , ,];
+      numberOfTimesCallbackHasRun = 0;
+      var callback = function () {
+        numberOfTimesCallbackHasRun++;
+      };
+      every(array, callback);
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should not call the callback on elements which have been deleted.': function () {
+      var array = [1, 2, 3, 4];
+      numberOfTimesCallbackHasRun = 0;
+      var callback = function () {
+        numberOfTimesCallbackHasRun++;
+        delete array[2];
+      };
+
+      every(array, callback);
+      eq(numberOfTimesCallbackHasRun, 3);
+    },
+    'It should not visit any newly created elements once the call to every() has begun.': function () {
+      var array = [1, 2];
+      numberOfTimesCallbackHasRun = 0;
+      var callback = function (e) {
+        numberOfTimesCallbackHasRun++;
+        if (e == 1) {
+          array.push(3);
+        }
+      };
+
+      every(array, callback);
+
+      eq(array[2] == 3, true);
+      eq(numberOfTimesCallbackHasRun, 2);
+    },
+    'It should return true only if all array elements pass the test.': function () {
+      var array = [1, 2, 3];
+      var callback1 = function (element) {
+        return element > 0;
+      };
+      var everyResult1 = every(array, callback1);
+      eq(everyResult1, true);
+
+      var callback2 = function (element) {
+        return element > 2;
+      };
+      var everyResult2 = every(array, callback2);
+      eq(everyResult2, false);
+      eq(typeof everyResult1, 'boolean');
+      eq(typeof everyResult2, 'boolean');
+    },
+    'It should accept the curent value of a previously updated, yet unvisited element.': function () {
+      var array = ['a', 'b'];
+      var callback = function (e) {
+        array[1] = 'a';
+        return e == 'a';
+      };
+
+      var everyResult = every(array, callback);
+      eq(array.length === 2, true);
+      eq(everyResult, true);
+    },
+    'It should return true when passed an empty array.': function () {
+      var array = [];
+      var callback = function () {};
+
+      var everyResult = every(array, callback);
+
+      eq(everyResult, true);
+    },
+  });
+</script>

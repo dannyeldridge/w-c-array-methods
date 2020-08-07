@@ -1,0 +1,86 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  includes() determines whether an array includes a certain value among its entries, returning true or false as appropriate.
+
+  Function signature: 
+  includes(array, valueToFind[, fromIndex])
+  
+  */
+
+  Array.prototype.myIncludes = function (valueToFind, fromIndex) {
+    var startingIndex = 0;
+
+    if (fromIndex) {
+      // ensure interger
+      fromIndex = Math.floor(fromIndex);
+      if (fromIndex < 0) {
+        startingIndex = this.length + fromIndex;
+      } else if (fromIndex >= this.length) {
+        return false;
+      } else {
+        startingIndex = fromIndex;
+      }
+    }
+    for (var i = startingIndex; i < this.length; i++) {
+      if (this[i] === valueToFind) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  tests({
+    'It should return true if the array contains valueToFind.': function () {
+      var array = [1];
+      var valueToFind = 1;
+      eq(array.myIncludes(valueToFind), true);
+    },
+    'It should return false if the array does not contain the valueToFind.': function () {
+      var array = [1];
+      var valueToFind = 2;
+      eq(array.myIncludes(valueToFind), false);
+    },
+    'It should consider case sensitivity when comparing strings and characters': function () {
+      var array = ['test'];
+      eq(array.myIncludes('test'), true);
+      eq(array.myIncludes('TEST'), false);
+    },
+    'It should start the search at the passed in fromIndex, for positive values of fromIndex': function () {
+      var array = [1, 2, 3];
+      var valueToFind = 1;
+      var fromIndex = 1;
+      eq(array.myIncludes(valueToFind, fromIndex), false);
+    },
+    'It should start at arr.length + fromIndex for negative value of fromIndex': function () {
+      var array = [1, 2, 3];
+      eq(array.myIncludes(1, -2), false);
+      eq(array.myIncludes(1, -3), true);
+    },
+    'It should treat 0 as equal to -0 and +0': function () {
+      var array = [0];
+      eq(array.myIncludes(-0), true);
+      eq(array.myIncludes(+0), true);
+    },
+    'It should not treat false as equal to 0': function () {
+      var array = [0];
+      eq(array.myIncludes(false), false);
+    },
+    'It should return false if fromIndex is greater than or equal to the length of the array without searching the array': function () {
+      var array = [1];
+      eq(array.myIncludes(1, 1), false);
+    },
+    'It should search the entire array if the computed index is less or equal than -1 * arr.length': function () {
+      var array = [1];
+      var valueToFind = 1;
+      var fromIndex = -2;
+      eq(array.myIncludes(valueToFind, fromIndex), true);
+    },
+    'It should be applied to other kinds of objects (e.g. array-like objects)': function () {
+      var obj = { length: 1, 0: 'test' };
+      eq(Array.prototype.myIncludes.call(obj, 'test'), true);
+    },
+  });
+</script>

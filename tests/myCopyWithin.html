@@ -1,0 +1,159 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+    The myCopyWithin() method shallow copies part of an array to another location in the same array and returns it without modifying its length.
+
+    Function signature:
+    arr.myCopyWithin(target[, start[, end]])
+
+  */
+
+  Array.prototype.myCopyWithin = function (target, start, end) {
+    var length = this.length;
+
+    var startIndex = 0; //default starting index to copy
+    var endIndex = length - 1; //default ending index to copy
+
+    if (target > length) {
+      return this;
+    } else if (target < 0) {
+      target = length + target;
+    }
+
+    if (start) {
+      if (start < 0) {
+        startIndex = length + start;
+      } else {
+        startIndex = start;
+      }
+    }
+
+    var numberOfItemsToCopy = length - target; // default number of items to copy
+
+    if (startIndex > target) {
+      numberOfItemsToCopy = start * -1;
+    }
+
+    if (end) {
+      if (end < 0) {
+        endIndex = length + end;
+      } else {
+        endIndex = end;
+      }
+      numberOfItemsToCopy = endIndex - startIndex;
+    }
+
+    let tempArray = [];
+    for (var i = startIndex; i < numberOfItemsToCopy + startIndex; i++) {
+      tempArray.push(this[i]);
+    }
+
+    for (var j = target; j < target + numberOfItemsToCopy; j++) {
+      this[j] = tempArray[j - target];
+    }
+
+    return this;
+  };
+
+  tests({
+    'It should return the modified array.': function () {
+      var array = [];
+      var myCopyWithinResult = array.myCopyWithin();
+      eq(myCopyWithinResult, array);
+    },
+    'If target is at or greater than array.length, nothing will be copied.': function () {
+      var array = [1, 2, 3];
+      var target = 3;
+      array.myCopyWithin(target);
+      eq(array.length, 3);
+      eq(array[0], 1);
+      eq(array[1], 2);
+      eq(array[2], 3);
+    },
+    'If target is positioned after startIndex, the copied sequence will be trimmed to fit arr.length.': function () {
+      var array = [0, 1, 2, 3, 4, 5, 6];
+      var target = 3;
+      array.myCopyWithin(target);
+      eq(array[5], 2);
+      eq(array[6], 3);
+    },
+    'If target is negative, it should be counted from the end.': function () {
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = -2;
+      array.myCopyWithin(target);
+      eq(array[4], 0);
+      eq(array[5], 1);
+      eq(array.length, 6);
+    },
+    "It start is provided, it should copy the elements from the index passed in as 'start'.": function () {
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = 3;
+      var start = 1;
+      array.myCopyWithin(target, start);
+      eq(array[0], 0);
+      eq(array[1], 1);
+      eq(array[2], 2);
+      eq(array[3], 1);
+      eq(array[4], 2);
+      eq(array[5], 3);
+    },
+    'If start is negative, it should be counted from the end.': function () {
+      // debugger;
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = 2;
+      var start = -1;
+      array.myCopyWithin(target, start);
+      eq(array[0], 0);
+      eq(array[1], 1);
+      eq(array[2], 5);
+      eq(array[3], 3);
+      eq(array[4], 4);
+      eq(array[5], 5);
+    },
+    'If end is provided, it should copy up to it, but not including it.': function () {
+      // debugger;
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = 3;
+      var start = 1;
+      var end = 3;
+      array.myCopyWithin(target, start, end);
+      eq(array[0], 0);
+      eq(array[1], 1);
+      eq(array[2], 2);
+      eq(array[3], 1);
+      eq(array[4], 2);
+      eq(array[5], 5);
+    },
+    'If negative, end will be counted from the end.': function () {
+      // debugger;
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = 0;
+      var start = 3;
+      var end = -1;
+      array.myCopyWithin(target, start, end);
+      eq(array[0], 3);
+      eq(array[1], 4);
+      eq(array[2], 2);
+      eq(array[3], 3);
+      eq(array[4], 4);
+      eq(array[5], 5);
+    },
+    'It should not modify the length.': function () {
+      var array = [0, 1, 2, 3, 4, 5];
+      var target = 0;
+      var start = 3;
+      var end = -1;
+      array.myCopyWithin(target, start, end);
+      eq(array.length, 6);
+    },
+    'It should be able to be used on array-like objects.': function () {
+      var obj = { length: 4, 0: 0, 1: 1, 2: 2, 3: 3 };
+      Array.prototype.myCopyWithin.call(obj, 2, 0, 2);
+      eq(obj.length, 4);
+      eq(obj[2], 0);
+      eq(obj[3], 1);
+    },
+  });
+</script>

@@ -1,0 +1,192 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+    The mySort() method sorts the elements of an array in place and returns the sorted array. The default sort order is ascending, built upon converting the elements into strings, then comparing their sequences of UTF-16 code units values.
+
+    Function signature:
+    array.mySort([compareFunction])
+
+  */
+
+  Array.prototype.mySort = function (compareFunction) {
+    var array = this;
+
+    // helper function to swap elements at position 'a' and 'b'
+    var swapAB = function (array) {
+      let temp = array[i];
+      array[i] = array[i + 1];
+      array[i + 1] = temp;
+    };
+
+    if (compareFunction) {
+      for (var i = 0; i < array.length - 1; i++) {
+        // if the first value is undefined
+        if (array[i] == undefined) {
+          swapAB(array);
+        } else {
+          // if comparing numbers
+          if (typeof array[i] == 'number') {
+            let a = array[i];
+            let b = array[i + 1];
+            if (compareFunction(a, b) > 0) {
+              swapAB(array);
+              i = -1;
+            }
+          } else if (typeof array[i] == 'string') {
+            // if comparing strings
+            for (var j = 0; j < array[i].length; j++) {
+              let a = array[i][j];
+              let b = array[i + 1][j];
+              if (typeof a == 'string') {
+                a = a.toString().charCodeAt(0);
+              }
+              if (typeof b == 'string') {
+                b = b.toString().charCodeAt(0);
+              }
+              if (a != b) {
+                if (compareFunction(a, b) > 0) {
+                  swapAB(array);
+                  i = -1;
+                  break;
+                } else break;
+              }
+            }
+          } else if (typeof array[i] == 'object') {
+            let a = array[i];
+            let b = array[i + 1];
+            if (compareFunction(a, b) > 0) {
+              swapAB(array);
+              i = -1;
+            }
+          }
+        }
+      }
+      // if no compareFunction
+    } else {
+      // for each word in the array
+      for (var i = 0; i < array.length - 1; i++) {
+        // if a is undefined
+        if (array[i] == undefined) {
+          swapAB(array);
+        } else {
+          for (var j = 0; j < array[i].length; j++) {
+            let a = array[i].charCodeAt(j);
+            let b = array[i + 1].charCodeAt(j);
+            if (a != b) {
+              if (a > b) {
+                swapAB(array);
+                i = -1;
+                break;
+              } else break;
+            }
+          }
+        }
+      }
+    }
+
+    return array;
+  };
+  tests({
+    'It should return the same array.': function () {
+      var array = [];
+      var mySortResult = array.mySort();
+      eq(mySortResult, array);
+    },
+    'If no compare function, it should convert array elements into strings and sort by Unicode point value.': function () {
+      var array = ['d', 'b', 'c', 'a'];
+      array.mySort();
+      eq(array[0], 'a');
+      eq(array[1], 'b');
+      eq(array[2], 'c');
+      eq(array[3], 'd');
+
+      var array2 = ['hi', 'bye'];
+      array2.mySort();
+      eq(array2[0], 'bye');
+      eq(array2[1], 'hi');
+    },
+    "If compareFunction value returned is less than 0, 'a' will become before 'b'.": function () {
+      // debugger;
+      var array = [2, 1];
+      var compareFunction = function (a, b) {
+        return a - b;
+      };
+      array.mySort(compareFunction);
+      eq(array[0], 1);
+      eq(array[1], 2);
+    },
+    'If no compareFunction, it should sort words alphabetically': function () {
+      var array = ['Blue', 'Humpback', 'Beluga'];
+      array.mySort();
+      eq(array[0], 'Beluga');
+      eq(array[1], 'Blue');
+      eq(array[2], 'Humpback');
+    },
+    'If compareFunction, it should sort words according to compareFunction': function () {
+      var array = ['Blue', 'Humpback', 'Beluga'];
+      var compareFunction = function (a, b) {
+        return a - b;
+      };
+      array.mySort(compareFunction);
+      eq(array[0], 'Beluga');
+      eq(array[1], 'Blue');
+      eq(array[2], 'Humpback');
+    },
+    'It should sort to the end of the array all undefined elements with no call to comparison function.': function () {
+      var array = [undefined, 1];
+      array.mySort();
+      eq(array[0], 1);
+      eq(array[1], undefined);
+    },
+    'It should be able to sort objects, given a numerical value of one of their properties.': function () {
+      var items = [
+        { name: 'Edward', value: 21 },
+        { name: 'Sharpe', value: 37 },
+        { name: 'And', value: 45 },
+        { name: 'The', value: -12 },
+        { name: 'Magnetic', value: 13 },
+        { name: 'Zeros', value: 37 },
+      ];
+      var compareFunction = function (a, b) {
+        return a.value - b.value;
+      };
+      Array.prototype.mySort.call(items, compareFunction);
+      eq(items[0].name, 'The');
+      eq(items[5].name, 'And');
+    },
+    'It should be able to sort objects, given a string value of one of their properties.': function () {
+      var items = [
+        { name: 'Blue', value: 21 },
+        { name: 'Humpback', value: 37 },
+        { name: 'Beluga', value: 45 },
+      ];
+      var compareFunction = function (a, b) {
+        var nameA = a.name.toUpperCase(); // ignore upper and lowercase
+        var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+        if (nameA < nameB) {
+          return -1;
+        }
+        if (nameA > nameB) {
+          return 1;
+        }
+        // names must be equal
+        return 0;
+      };
+
+      Array.prototype.mySort.call(items, compareFunction);
+      eq(items[0].name, 'Beluga');
+      eq(items[1].name, 'Blue');
+      eq(items[2].name, 'Humpback');
+    },
+    'It should be able to sort strings with non-ASCII characters.': function () {
+      var array = ['é', 'å'];
+      var compareFunction = function (a, b) {
+        return a.localeCompare(b);
+      };
+      array.mySort();
+      eq(array[0], 'å');
+      eq(array[1], 'é');
+    },
+  });
+</script>

@@ -1,0 +1,45 @@
+<script src="../simpletest.js"></script>
+
+<script>
+  /*
+
+  The myPop() method removes the last element from an array and returns that element. 
+  This method changes the length of the array.
+    
+  Function signature:
+  arrName.myPop()
+
+  */
+
+  Array.prototype.myPop = function () {
+    if (this.length == 0) {
+      return undefined;
+    }
+    var elementToReturn = this[this.length - 1];
+    this.length = this.length - 1;
+    return elementToReturn;
+  };
+
+  tests({
+    'It should remove the last element from the array.': function () {
+      var array = [1, 2];
+      array.myPop();
+      eq(array.length, 1);
+    },
+    'It should return the removed element.': function () {
+      var array = [1, 2];
+      var myPopResult = array.myPop();
+      eq(myPopResult, 2);
+    },
+    'It should return undefined if the array is empty.': function () {
+      var array = [];
+      eq(array.myPop(), undefined);
+    },
+    'It should be able to work on array-like objects.': function () {
+      var obj = { length: 2, 0: 'zero', 1: 'one' };
+      var myPopResult = Array.prototype.myPop.call(obj);
+      eq(myPopResult, 'one');
+      eq(obj.length, 1);
+    },
+  });
+</script>
